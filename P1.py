@@ -60,7 +60,7 @@ get_ipython().magic('matplotlib inline')
 
 
 #reading in an image
-image = mpimg.imread('test_images/solidWhiteCurve (1).jpg')
+image = mpimg.imread('test_images/solidWhiteCurve.jpg')
 
 #printing out some stats and plotting
 print('This image is:', type(image), 'with dimensions:', image.shape)
@@ -132,7 +132,7 @@ def region_of_interest(img, vertices):
     masked_image = cv2.bitwise_and(img, mask)
     return masked_image
 
-def draw_lines(img, lines, color=[255, 0, 0], thickness=2):
+def draw_lines(img, lines, color=[255, 0, 0], thickness=8):
     """
     NOTE: this is the function you might want to use as a starting point once you want to 
     average/extrapolate the line segments you detect to map out the full
@@ -186,13 +186,7 @@ def hough_lines(img, rho, theta, threshold, min_line_len, max_line_gap):
     ver_left_array=np.asarray(ver_left)
     ver_right_array=np.asarray(ver_right)
     row=ver_left_array.shape[0]
-    try:
-        col=ver_left_array.shape[2]
-    except IndexError:
-        print(sl_left)
-        print(sl_right)
-        print(ver_left)
-        print(ver_right)
+    col=ver_left_array.shape[2]
     ver_left_array=ver_left_array.reshape(int(row*2),int(col/2))
     row=ver_right_array.shape[0]
     col=ver_right_array.shape[2]
@@ -372,23 +366,48 @@ def process_image(image):
 
 # Let's try the one with the solid white lane on the right first ...
 
+
+
 # In[35]:
-
-
 white_output = 'test_videos_output/solidWhiteRight.mp4'
 ## To speed up the testing process you may want to try your pipeline on a shorter subclip of the video
 ## To do so add .subclip(start_second,end_second) to the end of the line below
 ## Where start_second and end_second are integer values representing the start and end of the subclip
 ## You may also uncomment the following line for a subclip of the first 5 seconds
 ##clip1 = VideoFileClip("test_videos/solidWhiteRight.mp4").subclip(0,5)
+
 clip1 = VideoFileClip("test_videos/solidWhiteRight.mp4")
 
-white_clip = clip1.fl_image(process_image) #NOTE: this function expects color images!!
-get_ipython().magic('time white_clip.write_videofile(white_output, audio=False)')
+#get_ipython().magic('time white_clip.write_videofile(white_output, audio=False)')
 
+#Play the video inline, or if you prefer find the video in your filesystem (should be in the same directory) and play it in your video player of choice.
+# %% Video Debug
+clip1 = VideoFileClip("test_videos/solidWhiteRight.mp4")
+name=" solidWhiteRight"
+count=0
+e=[]
+for frame in clip1.iter_frames():
+    try:
+        q=process_image(frame)
+        cv2.imwrite('correct_images_solidWhiteRight/Frame_'+str(count)+'.jpg',cv2.cvtColor(q, cv2.COLOR_RGB2BGR))
+    except IndexError:
+        cv2.imwrite('error_images_solidWhiteRight/Frame_'+str(count)+'.jpg',cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
+        e.append(count)
+    count=count+1
 
-# Play the video inline, or if you prefer find the video in your filesystem (should be in the same directory) and play it in your video player of choice.
+clip2 = VideoFileClip("test_videos/solidYellowLeft.mp4")
+count=0
+e=[]
+for frame in clip2.iter_frames():
+    try:
+        q=process_image(frame)
+        cv2.imwrite('correct_images_solidYellowLeft/Frame_'+str(count)+'.jpg',cv2.cvtColor(q, cv2.COLOR_RGB2BGR))
+    except IndexError:
+        cv2.imwrite('error_images_solidYellowLeft/Frame_'+str(count)+'.jpg',cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
+        e.append(count)
+    count=count+1
 
+# %%
 # In[22]:
 
 
@@ -463,7 +482,7 @@ HTML("""
 </video>
 """.format(challenge_output))
 
-#%%
+#%%   LUCAS, Debugging Starts here
     
     rho = 1 # distance resolution in pixels of the Hough grid
     theta = np.pi/180 # angular resolution in radians of the Hough grid
@@ -472,6 +491,7 @@ HTML("""
     max_line_gap = 1 
     # lines = cv2.HoughLinesP(img, rho, theta, threshold, np.array([]), minLineLength=min_line_len, maxLineGap=max_line_gap)
 #%%
+    image=cv2.imread('error_images/solidWhiteRight4.jpg')
     img=np.copy(image)
     imGray=grayscale(img)
     imgCanny=canny(imGray,50,150)
@@ -479,7 +499,7 @@ HTML("""
     imshape=img.shape
     vertices = np.array([[(0,imshape[0]),(int(0.45*imshape[1]), int(0.6*imshape[0])), (int(0.6*imshape[1]), int(0.6*imshape[0])), (imshape[1],imshape[0])]], dtype=np.int32)
     imgROI = region_of_interest(imgGauss,vertices)    
-    imgHough = hough_lines(imgROI,  rho, theta, threshold, min_line_length, max_line_gap)
+    #imgHough = hough_lines(imgROI,  rho, theta, threshold, min_line_length, max_line_gap)
     lines = cv2.HoughLinesP(imgROI, rho, theta, threshold, np.array([]),min_line_length,max_line_gap)
     line_img = np.zeros((img.shape[0], img.shape[1], 3), dtype=np.uint8)
 #for line in lines:  # For every line in HoughLines
@@ -491,8 +511,7 @@ HTML("""
 #           elif sl>0:
 #               sl_right=np.append(sl_right,sl)
 #               ver_left=np.append(ver_left,np.array([x1,y1,x2,y2])
-#%% Debug Video code
-cap = cv2.VideoCapture('video.avi')
+
 #%% Draw Line mod
 sl_left=[]
 sl_right=[]
@@ -504,11 +523,11 @@ for line in lines:  # For every line in HoughLines
     for x1,y1,x2,y2 in line:   #For Each set of points in the line
            temp=np.array([(x1,y1),(x2,y2)])
            sl=(y2-y1)/(x2-x1)
-           if sl < -0.4 :
+           if sl < 0 :
                sl_left.append(sl)
                ver_left.append(line)
                #ver_left=np.concatenate((ver_left,temp),axis=0)
-           elif sl > 0.5:
+           elif sl > 0:
                sl_right.append(sl)
                ver_right.append(line)
 # Find average slope
@@ -517,10 +536,8 @@ sl_right_avg=sum(sl_right)/len(sl_right)
 ver_left_array=np.asarray(ver_left)
 ver_right_array=np.asarray(ver_right)
 row=ver_left_array.shape[0]
-try:
-    col=ver_left_array.shape[2]
-except IndexError:
-    print(ver_left_array.shape)
+col=ver_left_array.shape[2]
+print(ver_left_array.shape)
 ver_left_array=ver_left_array.reshape(int(row*2),int(col/2))
 row=ver_right_array.shape[0]
 col=ver_right_array.shape[2]
