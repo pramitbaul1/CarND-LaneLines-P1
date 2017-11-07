@@ -170,12 +170,13 @@ def hough_lines(img, rho, theta, threshold, min_line_len, max_line_gap):
         for x1,y1,x2,y2 in line:   #For Each set of points in the line
                temp=np.array([(x1,y1),(x2,y2)])
                sl=(y2-y1)/(x2-x1)
-               if sl < 0 :
+               if sl < -0.3 :
                    sl_left.append(sl)
                    ver_left.append(line)
-               elif sl > 0:
+               elif sl > 0.3:
                    sl_right.append(sl)
                    ver_right.append(line)
+    
     # Find average slope
     imshape=img.shape
     vertices = np.array([[(0,imshape[0]),(int(0.45*imshape[1]), int(0.6*imshape[0])), (int(0.6*imshape[1]), int(0.6*imshape[0])), (imshape[1],imshape[0])]], dtype=np.int32)
@@ -245,8 +246,8 @@ def pipeline(img):
     imgROI = region_of_interest(imgGauss,vertices)
     rho = 1 # distance resolution in pixels of the Hough grid
     theta = np.pi/180 # angular resolution in radians of the Hough grid
-    threshold = 150     # minimum number of votes (intersections in Hough grid cell). 
-    min_line_length = 5 #minimum number of pixels making up a line
+    threshold = 80     # minimum number of votes (intersections in Hough grid cell). 
+    min_line_length = 3 #minimum number of pixels making up a line
     max_line_gap = 1 
     imgHough = hough_lines(imgROI,  rho, theta, threshold, min_line_length, max_line_gap)
     final_img = weighted_img(imgHough,img,α=0.8, β=1., λ=0.)
@@ -377,8 +378,8 @@ white_output = 'test_videos_output/solidWhiteRight.mp4'
 ##clip1 = VideoFileClip("test_videos/solidWhiteRight.mp4").subclip(0,5)
 
 clip1 = VideoFileClip("test_videos/solidWhiteRight.mp4")
-
-#get_ipython().magic('time white_clip.write_videofile(white_output, audio=False)')
+white_clip = clip1.fl_image(process_image)
+get_ipython().magic('time white_clip.write_videofile(white_output, audio=False)')
 
 #Play the video inline, or if you prefer find the video in your filesystem (should be in the same directory) and play it in your video player of choice.
 # %% Video Debug
@@ -397,17 +398,17 @@ for frame in clip1.iter_frames():
 
 clip2 = VideoFileClip("test_videos/solidYellowLeft.mp4")
 count=0
-e=[]
-for frame in clip2.iter_frames():
+e1=[]
+for frames in clip2.iter_frames():
     try:
-        q=process_image(frame)
+        q=process_image(frames)
         cv2.imwrite('correct_images_solidYellowLeft/Frame_'+str(count)+'.jpg',cv2.cvtColor(q, cv2.COLOR_RGB2BGR))
     except IndexError:
-        cv2.imwrite('error_images_solidYellowLeft/Frame_'+str(count)+'.jpg',cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
-        e.append(count)
+        cv2.imwrite('error_images_solidYellowLeft/Frame_'+str(count)+'.jpg',cv2.cvtColor(frames, cv2.COLOR_RGB2BGR))
+        e1.append(count)
     count=count+1
+# %% Debugging each image
 
-# %%
 # In[22]:
 
 
@@ -429,13 +430,13 @@ HTML("""
 # In[23]:
 
 
-yellow_output = 'test_videos_output/solidYellowLeft_resized.mp4'
+yellow_output = 'test_videos_output/solidYellowLeft.mp4'
 ## To speed up the testing process you may want to try your pipeline on a shorter subclip of the video
 ## To do so add .subclip(start_second,end_second) to the end of the line below
 ## Where start_second and end_second are integer values representing the start and end of the subclip
 ## You may also uncomment the following line for a subclip of the first 5 seconds
 ##clip2 = VideoFileClip('test_videos/solidYellowLeft.mp4').subclip(0,5)
-clip2 = VideoFileClip('test_videos/solidYellowLeft_resized.mp4')
+clip2 = VideoFileClip('test_videos/solidYellowLeft.mp4')
 yellow_clip = clip2.fl_image(process_image)
 get_ipython().magic('time yellow_clip.write_videofile(yellow_output, audio=False)')
 
