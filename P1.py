@@ -241,7 +241,6 @@ def pipeline(img):
     imgCanny=canny(imGray,50,150)
     imgGauss=gaussian_blur(imgCanny,5)
     imshape=img.shape
-    vertices = np.array([[(0,imshape[0]),(425, 325), (575, 325), (imshape[1],imshape[0])]], dtype=np.int32)
     vertices = np.array([[(0,imshape[0]),(int(0.45*imshape[1]), int(0.6*imshape[0])), (int(0.6*imshape[1]), int(0.6*imshape[0])), (imshape[1],imshape[0])]], dtype=np.int32)
     imgROI = region_of_interest(imgGauss,vertices)
     rho = 1 # distance resolution in pixels of the Hough grid

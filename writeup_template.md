@@ -18,8 +18,9 @@ The goals / steps of this project are the following:
 [image1]: ./examples/grayscale.jpg "Grayscale"
 [image2]: ./examples/canny.jpg "Canny"
 [image3]: ./examples/gauss.jpg "Gauss"
-[image4]: ./examples/gauss.jpg "Gauss"
-
+[image4]: ./examples/mask.jpg "Mask"
+[image5]: ./examples/line-segments-example.jpg "Lane Markings"
+[image6]: ./examples/final.jpg "Extrapolated Road Lines"
 ---
 
 ### Reflection
@@ -34,10 +35,18 @@ I then ran a canny edge detector on the grayscale image to detect the edges on t
 
 I applied a gaussian filter to make the detected edges more prominent by sharpening their features. 
 ![alt text][image3]
-If you'd like to include images to show how the pipeline works, here is how to include an image: 
 
 I created a mask to identify the region of interest, which in this case is the lane occupied by the vehicle. The mask is static, but needs to have a moving horizon if the road has 
 a gradient. 
+![alt text][image4]
+
+I used the given hough transform and draw_lines function to annotate lane markings, similar to the example image provided in the repository 
+![alt text][image5]
+
+I modified the hough_lines function by separating the left and right lines with a threshold parameter. (A slope of -0.3  for the left lane and 0.3 for the right lane). I found the average
+of  the left and right lane slopes and fitted a first order polynomial on both sides. I used these lines as input to the draw_lines which is unchanged. An example of an image after processed 
+by my pipeline can be seen below. 
+![alt text][image5]
 
 ### 2. Identify potential shortcomings with your current pipeline
 
