@@ -21,6 +21,7 @@ The goals / steps of this project are the following:
 [image4]: ./examples/mask.jpg "Mask"
 [image5]: ./examples/line-segments-example.jpg "Lane Markings"
 [image6]: ./examples/final.jpg "Extrapolated Road Lines"
+
 ---
 
 ### Reflection
