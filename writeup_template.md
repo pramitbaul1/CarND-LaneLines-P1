@@ -47,7 +47,7 @@ I used the given hough transform and draw_lines function to annotate lane markin
 I modified the hough_lines function by separating the left and right lines with a threshold parameter. (A slope of -0.3  for the left lane and 0.3 for the right lane). I found the average
 of  the left and right lane slopes and fitted a first order polynomial on both sides. I used these lines as input to the draw_lines which is unchanged. An example of an image after processed 
 by my pipeline can be seen below. 
-![alt text][image5]
+![alt text][image6]
 
 ### 2. Identify potential shortcomings with your current pipeline
 
