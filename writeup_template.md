@@ -44,9 +44,15 @@ a gradient.
 I used the given hough transform and draw_lines function to annotate lane markings, similar to the example image provided in the repository 
 ![alt text][image5]
 
-I modified the hough_lines function by separating the left and right lines with a threshold parameter. (A slope of -0.3  for the left lane and 0.3 for the right lane). I found the average
-of  the left and right lane slopes and fitted a first order polynomial on both sides. I used these lines as input to the draw_lines which is unchanged. An example of an image after processed 
-by my pipeline can be seen below. 
+I modified the hough_lines function by separating the left and right lines with a threshold parameter. (A slope of -0.3  for the left lane and 0.3 for the right lane). I used this threshold to separate the line vertices and 
+their respective slopes. I found the average of  the left and right lane slopes and fitted a first order polynomial on both sides using an np.polyfit function. Some array manipulation was
+required to  I used these lines as input to the draw_lines which is unchanged. An example of an image after processed 
+by my pipeline can be seen below. The pipeline is currently failing when no lines are identified on a frame. I debugged this failure using error handling features in python and the results can be 
+seen in the error_images and correct_images folder in my repository. In this situation, an empty array is returned from the thresholding code
+and the subsequent matrix operations return division by zero and index errors. I resolved the issue by iterating my hough transform parameters so that left and right lines are picked
+up for every frame. The suggested hough transform parameters suggested in the review do lead to better lane detection for the first two videos, but are resulting in IndexErrors for the
+challenge video. A possible long term fix for this issue as suggested by my advisor would be to use a weighted average to annotate the frames where no lines are detected. I'll try to 
+implement this algorithm in the advanced lane detection project.
 ![alt text][image6]
 
 ### 2. Identify potential shortcomings with your current pipeline
